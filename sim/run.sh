@@ -30,7 +30,8 @@ while IFS= read -r source || [[ -n $source ]]; do
   [[ -z $source || $source == \#* ]] && continue
   printf '"%s/%s"\n' "$root" "$source"
 done < "$root/sim/filelist.f" > "$run_dir/sources.f"
-args=(-64bit -sv -f "$run_dir/sources.f" -top "$top" -svseed "$seed")
+# Ignore missing optional library paths in the site Cadence installation.
+args=(-64bit -sv -nowarn DLCPTH -f "$run_dir/sources.f" -top "$top" -svseed "$seed")
 [[ $mode == elaborate ]] && args+=(-elaborate)
 [[ -n $test_name ]] && args+=(-uvm "+UVM_TESTNAME=$test_name")
 ((waves)) && args+=(-access +rwc +WAVES)
