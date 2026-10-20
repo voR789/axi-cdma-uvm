@@ -1,6 +1,6 @@
 # DUT overview
 
-Inspected upstream: https://github.com/alexforencich/verilog-axi
+Upstream: [alexforencich/verilog-axi](https://github.com/alexforencich/verilog-axi)
 Pinned revision: `516bd5dadc3365b7f9e225d2af8fe0b8d804fe53`.
 Source: `dut/verilog-axi/rtl/axi_cdma.v`; upstream license: `dut/verilog-axi/COPYING` (MIT, copyright Alex Forencich). Original notices remain intact. Local project files use the root MIT license.
 
@@ -8,7 +8,7 @@ Source: `dut/verilog-axi/rtl/axi_cdma.v`; upstream license: `dut/verilog-axi/COP
 
 `axi_cdma` copies a descriptor-specified byte count from a source address to a destination address through an AXI4 master interface. Internal read-request and write/datapath state machines split transfers into bursts. A shift datapath supports optional byte realignment, with internal output and completion FIFOs (32 entries each). These are arrays inside the module, not external module dependencies.
 
-Only full bus-width INCR bursts are generated. Burst segmentation respects the maximum burst length and 4 KiB boundaries on source and destination. Partial final words use write strobes. With `ENABLE_UNALIGNED=0`, descriptor addresses are masked down to bus-word boundaries; with it enabled, source and destination offsets are handled by the shifting logic. There is no AXI-Lite programming interface, scatter/gather descriptor fetcher, or external stream payload interface in this module. Do not infer overlapping-copy or zero-length guarantees from the interface.
+Only full bus-width INCR bursts are generated. Burst segmentation respects the maximum burst length and 4 KiB boundaries on source and destination. Partial final words use write strobes. With `ENABLE_UNALIGNED=0`, descriptor addresses are masked down to bus-word boundaries; with it enabled, source and destination offsets are handled by the shifting logic. There is no AXI-Lite programming interface, scatter/gather descriptor fetcher, or external stream payload interface in this module. Overlapping-copy and zero-length behavior are not specified here.
 
 ## Parameters
 
@@ -18,12 +18,12 @@ Only full bus-width INCR bursts are generated. Burst segmentation respects the m
 | AXI_ADDR_WIDTH | 16 | Address bits |
 | AXI_STRB_WIDTH | AXI_DATA_WIDTH/8 | Byte-lane strobes |
 | AXI_ID_WIDTH | 8 | AXI ID bits |
-| AXI_MAX_BURST_LEN | 16 | Maximum beats, permitted range 1–256 |
+| AXI_MAX_BURST_LEN | 16 | Maximum beats, permitted range 1â€“256 |
 | LEN_WIDTH | 20 | Descriptor length bits |
 | TAG_WIDTH | 8 | Descriptor tag bits |
 | ENABLE_UNALIGNED | 0 | Optional unaligned support |
 
-The module also declares derived sizing parameters and FIFO address widths in its body; the harness retains all defaults. RTL startup checks require consistent data/strobe sizing, a power-of-two strobe width, and a maximum burst length within 1–256. The intended standard configuration uses eight bits per byte lane.
+The module also declares derived sizing parameters and FIFO address widths in its body; the harness retains all defaults. RTL startup checks require consistent data/strobe sizing, a power-of-two strobe width, and a maximum burst length within 1â€“256. The intended standard configuration uses eight bits per byte lane.
 
 ## Interfaces
 
@@ -39,8 +39,8 @@ The module also declares derived sizing parameters and FIFO address widths in it
 
 The only required RTL source is `rtl/axi_cdma.v`: it contains no module instantiations or include directives. The independent descriptor mux is not required. Upstream `tb/axi_cdma/Makefile` and the simulator source list in `tb/axi_cdma/test_axi_cdma.py` corroborate this dependency.
 
-Upstream `README.md`, section `axi_cdma`, describes burst and unaligned capabilities and links to the author's AXI documentation. Upstream cocotb tests use pytest, cocotb-test, and cocotbext-axi's AxiRam and descriptor streams; those Python dependencies are not required for this repository's idle SystemVerilog harness. Existing upstream tests are reference material, not results for this project. Upstream marks verilog-axi deprecated in favor of taxi; this project intentionally retains the requested verilog-axi target and pinned revision.
+Upstream `README.md`, section `axi_cdma`, describes burst and unaligned capabilities and links to the author's AXI documentation. Upstream cocotb tests use pytest, cocotb-test, and cocotbext-axi's AxiRam and descriptor streams; those Python dependencies are not required for this repository's idle SystemVerilog harness. Upstream marks verilog-axi deprecated in favor of taxi; this project targets the pinned verilog-axi implementation.
 
 ## Simulation integration
 
-No vendor primitive libraries, generated IP, or extra RTL packages are required. The supplied harness drives all DUT inputs to idle values, including `enable=0` and descriptor-valid=0. It runs for 150 ns then finishes. It contains no memory responder, functional stimulus, checking, or UVM. A future functional environment must provide AXI responses. Selecting a future UVM test merely forwards simulator options until the user adds UVM startup and components.
+No vendor primitive libraries, generated IP, or extra RTL packages are required. The supplied harness drives all DUT inputs to idle values, including `enable=0` and descriptor-valid=0. It runs for 150 ns then finishes. It contains no memory responder, functional stimulus, checking, or UVM. A future functional environment must provide AXI responses. The `--test` option forwards UVM selection arguments; UVM startup is not yet implemented.

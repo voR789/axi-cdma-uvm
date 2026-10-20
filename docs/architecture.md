@@ -1,4 +1,4 @@
-# Future UVM architecture
+# Testbench architecture
 
 ## Agents
 
